@@ -1,5 +1,3 @@
-# Allow access to the uploads directory
-<Directory "/var/www/html/uploads">
+<Directory /var/www/html>
     AllowOverride All
-    Require all granted
 </Directory>
