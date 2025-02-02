@@ -140,10 +140,18 @@
       #dropZone {
         width: 70%;
       }
-      .file-link button {
-      font-size: 14px;
     }
-    }
+    @media (max-width: 360px) {
+  .file-link {
+    flex-direction: column;
+  }
+  .file-link input,
+  .file-link button {
+    width: 100%;
+    margin: 5px 0;
+  }
+}
+
   </style>
 </head>
 <body>
