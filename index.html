@@ -1,230 +1,306 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temporary Image Host with Enhancer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 20px;
-        }
-        h2 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-        #dropZone {
-            border: 2px dashed #ccc;
-            padding: 40px;
-            text-align: center;
-            margin: 20px auto;
-            width: 60%;
-            max-width: 500px;
-            cursor: pointer;
-            background-color: #fff;
-            border-radius: 10px;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-        #dropZone:hover {
-            border-color: #007bff;
-            background-color: #f0f8ff;
-        }
-        #dropZone.dragover {
-            border-color: #007bff;
-            background-color: #e0f0ff;
-        }
-        #fileInput {
-            display: none;
-        }
-        .preview-container {
-            margin-top: 20px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin: 20px auto;
-        }
-        .preview {
-            max-width: 100%;
-            height: auto;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        .file-link {
-            word-break: break-all;
-            margin: 15px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .file-link input {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        .file-link button {
-            padding: 8px 12px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .file-link button:hover {
-            background-color: #0056b3;
-        }
-        .enhanced {
-            border: 2px solid #28a745;
-        }
-        .loading {
-            filter: grayscale(1);
-            opacity: 0.5;
-        }
-        .loader {
-            color: #888;
-            font-style: italic;
-            margin: 10px 0;
-        }
-        .enhanced-container {
-            margin-top: 15px;
-        }
-         @media (max-width: 600px) {
-            .file-name {
-                font-size: 12px; 
-                margin: 5px 0; 
-                text-align: center; 
-                padding: 0 10px;
-                white-space: normal;
-            }
-            #dropZone {
-                width: 70%;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Temporary Image Host with Enhancer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    #dropZone {
+      border: 2px dashed #ccc;
+      padding: 40px;
+      text-align: center;
+      margin: 20px auto;
+      width: 60%;
+      max-width: 500px;
+      cursor: pointer;
+      background-color: #fff;
+      border-radius: 10px;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    #dropZone:hover {
+      border-color: #007bff;
+      background-color: #f0f8ff;
+    }
+    #dropZone.dragover {
+      border-color: #007bff;
+      background-color: #e0f0ff;
+    }
+    #fileInput {
+      display: none;
+    }
+    /* Uploading indicator styling */
+    #uploadingIndicator {
+      margin: 20px auto;
+      font-size: 18px;
+      font-weight: bold;
+      color: #555;
+      animation: discoText 2s linear infinite;
+      display: none;
+    }
+    @keyframes discoText {
+      0%   { color: red; }
+      14%  { color: orange; }
+      28%  { color: yellow; }
+      42%  { color: green; }
+      56%  { color: blue; }
+      70%  { color: indigo; }
+      84%  { color: violet; }
+      100% { color: red; }
+    }
+    .preview-container {
+      margin-top: 20px;
+      padding: 20px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    /* Disco border effect while enhancing */
+    .preview-container.uploading {
+      animation: discoBorder 1.5s infinite;
+    }
+    @keyframes discoBorder {
+      0% { border-color: red; }
+      14% { border-color: orange; }
+      28% { border-color: yellow; }
+      42% { border-color: green; }
+      56% { border-color: blue; }
+      70% { border-color: indigo; }
+      84% { border-color: violet; }
+      100% { border-color: red; }
+    }
+    .preview {
+      max-width: 100%;
+      height: auto;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+    .file-link {
+      word-break: break-all;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .file-link input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .file-link button {
+      padding: 8px 12px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .file-link button:hover {
+      background-color: #0056b3;
+    }
+    .enhanced {
+      border: 2px solid #28a745;
+    }
+    .loading {
+      filter: grayscale(1);
+      opacity: 0.5;
+    }
+    .loader {
+      font-style: italic;
+      margin: 10px 0;
+      animation: discoText 2s linear infinite;
+    }
+    .enhanced-container {
+      margin-top: 15px;
+    }
+    @media (max-width: 600px) {
+      .file-name {
+        font-size: 12px;
+        margin: 5px 0;
+        text-align: center;
+        padding: 0 10px;
+        white-space: normal;
+      }
+      #dropZone {
+        width: 70%;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h2>📤 Temporary Image Host with Enhancer</h2>
-    <div id="dropZone">
-        Drag & Drop images here or<br>
-        <button onclick="document.getElementById('fileInput').click()">Choose Files</button>
-        <input type="file" id="fileInput" accept="image/*" multiple>
-        <div class="file-name" id="fileName"></div>
-    </div>
-    <div id="previews"></div>
+  <h2>📤 Temporary Image Host with Enhancer</h2>
+  <div id="dropZone">
+    Drag & Drop images here or<br />
+    <button onclick="document.getElementById('fileInput').click()">Choose Files</button>
+    <input type="file" id="fileInput" accept="image/*" multiple />
+    <div class="file-name" id="fileName"></div>
+  </div>
 
-    <script>
-        const proxyUrl = "https://broken-star-6439.abrahamdw882.workers.dev/?u=";
+  <div id="uploadingIndicator">Uploading...</div>
 
-        document.getElementById('fileInput').addEventListener('change', function (e) {
-            uploadFiles(e.target.files);
-            displayFileName(e.target.files);
-        });
+  <div id="previews"></div>
 
-        const dropZone = document.getElementById('dropZone');
+  <script>
+    const proxyUrl = "https://broken-star-6439.abrahamdw882.workers.dev/?u=";
+    let activeUploads = 0;
 
-        dropZone.ondragover = e => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
+    document.getElementById('fileInput').addEventListener('change', function (e) {
+      const files = e.target.files;
+      displayFileName(files);
+      uploadFiles(files);
+    });
+
+    const dropZone = document.getElementById('dropZone');
+
+    dropZone.ondragover = e => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    };
+
+    dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+
+    dropZone.ondrop = e => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      displayFileName(files);
+      uploadFiles(files);
+    };
+
+    function displayFileName(files) {
+      if (files.length > 0) {
+        document.getElementById('fileName').textContent = `Selected File: ${files[0].name}`;
+      }
+    }
+
+    function showUploadingIndicator() {
+      document.getElementById('uploadingIndicator').style.display = 'block';
+    }
+
+    function hideUploadingIndicator() {
+      document.getElementById('uploadingIndicator').style.display = 'none';
+    }
+
+    function uploadFiles(files) {
+      for (const file of files) {
+        if (!file.type.startsWith('image/')) {
+          alert("Only image files are allowed.");
+          continue;
+        }
+        activeUploads++;
+        showUploadingIndicator();
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        fetch('upload.php', {
+          method: 'POST',
+          body: formData
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              displayImage(data.url);
+            } else {
+              alert("Upload failed: " + data.error);
+            }
+          })
+          .catch(error => {
+            console.error("Error uploading file:", error);
+          })
+          .finally(() => {
+            activeUploads--;
+            if (activeUploads === 0) {
+              hideUploadingIndicator();
+            }
+          });
+      }
+    }
+
+    function displayImage(imageUrl) {
+      const container = document.createElement('div');
+      container.classList.add('preview-container', 'uploading');
+      container.innerHTML = `
+          <h3>Original Image</h3>
+          <img class="preview" src="${imageUrl}">
+          <h3>Enhanced Image</h3>
+          <div class="enhanced-container">
+              <img class="preview loading" id="enhanced-${imageUrl}" data-processing="true">
+              <div class="loader">Processing enhancement...</div>
+          </div>
+          <div class="file-link">
+              <input type="text" value="${imageUrl}" readonly>
+              <button onclick="copyToClipboard(this)">Copy</button>
+          </div>
+      `;
+      document.getElementById('previews').appendChild(container);
+      enhanceImage(imageUrl);
+    }
+
+    async function enhanceImage(imageUrl) {
+      try {
+        const enhanceUrl = `https://bk9.fun/tools/enhance?url=${encodeURIComponent(imageUrl)}`;
+        const finalUrl = proxyUrl + encodeURIComponent(enhanceUrl);
+
+        const enhancedImg = document.getElementById(`enhanced-${imageUrl}`);
+        enhancedImg.src = finalUrl;
+
+        enhancedImg.onload = () => {
+          enhancedImg.classList.remove('loading');
+          enhancedImg.classList.add('enhanced');
+          const loader = enhancedImg.parentElement.querySelector('.loader');
+          if (loader) {
+            loader.remove();
+          }
+          const container = enhancedImg.closest('.preview-container');
+          if (container) {
+            container.classList.remove('uploading');
+          }
         };
 
-        dropZone.ondragleave = () => dropZone.classList.remove('dragover');
-
-        dropZone.ondrop = e => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            uploadFiles(e.dataTransfer.files);
-            displayFileName(e.dataTransfer.files);
+        enhancedImg.onerror = () => {
+          const parent = enhancedImg.parentElement;
+          parent.innerHTML = 'Error enhancing image';
+          const container = enhancedImg.closest('.preview-container');
+          if (container) {
+            container.classList.remove('uploading');
+          }
         };
-
-        function uploadFiles(files) {
-            for (const file of files) {
-                if (!file.type.startsWith('image/')) {
-                    alert("Only image files are allowed.");
-                    continue;
-                }
-
-                const formData = new FormData();
-                formData.append('image', file);
-
-                fetch('upload.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        displayImage(data.url, file);
-                    } else {
-                        alert("Upload failed: " + data.error);
-                    }
-                })
-                .catch(error => console.error("Error uploading file:", error));
-            }
+      } catch (error) {
+        console.error('Enhancement error:', error);
+        const parent = document.querySelector(`#enhanced-${imageUrl}`).parentElement;
+        parent.innerHTML = 'Enhancement failed';
+        const container = document.querySelector(`#enhanced-${imageUrl}`).closest('.preview-container');
+        if (container) {
+          container.classList.remove('uploading');
         }
- function displayFileName(files) {
-            const fileName = files[0].name; 
-            document.getElementById('fileName').textContent = `Selected File: ${fileName}`;
-        }
-        function displayImage(imageUrl, file) {
-            const container = document.createElement('div');
-            container.classList.add('preview-container');
-            container.innerHTML = `
-                <h3>Original Image</h3>
-                <img class="preview" src="${imageUrl}">
-                <h3>Enhanced Image</h3>
-                <div class="enhanced-container">
-                    <img class="preview loading" id="enhanced-${imageUrl}" data-processing="true">
-                    <div class="loader">Processing enhancement...</div>
-                </div>
-                <div class="file-link">
-                    <input type="text" value="${imageUrl}" readonly>
-                    <button onclick="copyToClipboard(this)">Copy</button>
-                </div>
-            `;
-            document.getElementById('previews').appendChild(container);
+      }
+    }
 
-            enhanceImage(imageUrl, file);
-        }
-
-        async function enhanceImage(imageUrl, file) {
-            try {
-                const enhanceUrl = `https://bk9.fun/tools/enhance?url=${encodeURIComponent(imageUrl)}`;
-                const finalUrl = proxyUrl + encodeURIComponent(enhanceUrl);
-
-                const enhancedImg = document.getElementById(`enhanced-${imageUrl}`);
-                enhancedImg.src = finalUrl;
-
-                enhancedImg.onload = () => {
-                    enhancedImg.classList.remove('loading');
-                    enhancedImg.classList.add('enhanced');
-                    enhancedImg.parentElement.querySelector('.loader').remove();
-                };
-
-                enhancedImg.onerror = () => {
-                    enhancedImg.parentElement.innerHTML = 'Error enhancing image';
-                };
-            } catch (error) {
-                console.error('Enhancement error:', error);
-                document.querySelector(`#enhanced-${imageUrl}`).parentElement.innerHTML = 'Enhancement failed';
-            }
-        }
-
-        function copyToClipboard(button) {
-            const input = button.previousElementSibling;
-            input.select();
-            document.execCommand('copy');
-            button.textContent = '✅ Copied!';
-            setTimeout(() => button.textContent = 'Copy', 2000);
-        }
-    </script>
+    function copyToClipboard(button) {
+      const input = button.previousElementSibling;
+      input.select();
+      document.execCommand('copy');
+      button.textContent = '✅ Copied!';
+      setTimeout(() => button.textContent = 'Copy', 2000);
+    }
+  </script>
 </body>
 </html>
