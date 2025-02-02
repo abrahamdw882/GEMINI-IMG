@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporary Image Host</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #dropZone {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin: 20px auto;
+            width: 50%;
+            cursor: pointer;
+        }
+        .preview-container {
+            margin-top: 15px;
+        }
+        .preview {
+            max-width: 300px;
+            margin: 10px 0;
+        }
+        .file-link {
+            word-break: break-all;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h2>📤 Temporary Image Host</h2>
+    <div id="dropZone">
+        Drag & Drop images here or<br>
+        <input type="file" id="fileInput" accept="image/*" multiple>
+    </div>
+    <div id="previews"></div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function (e) {
+            uploadFiles(e.target.files);
+        });
+
+        const dropZone = document.getElementById('dropZone');
+
+        dropZone.ondragover = e => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '#f0f0f0';
+        };
+
+        dropZone.ondragleave = () => dropZone.style.backgroundColor = '';
+
+        dropZone.ondrop = e => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '';
+            uploadFiles(e.dataTransfer.files);
+        };
+
+        function uploadFiles(files) {
+            for (const file of files) {
+                if (!file.type.startsWith('image/')) {
+                    alert("Only image files are allowed.");
+                    continue;
+                }
+
+                const formData = new FormData();
+                formData.append('image', file);
+
+                fetch('upload.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayImage(data.url);
+                    } else {
+                        alert("Upload failed: " + data.error);
+                    }
+                })
+                .catch(error => console.error("Error uploading file:", error));
+            }
+        }
+
+        function displayImage(imageUrl) {
+            const container = document.createElement('div');
+            container.classList.add('preview-container');
+            container.innerHTML = `
+                <img class="preview" src="${imageUrl}">
+                <div class="file-link">
+                    <small>Image URL:</small><br>
+                    <input type="text" value="${imageUrl}" readonly>
+                    <button onclick="copyToClipboard(this)">📋 Copy</button>
+                </div>
+            `;
+            document.getElementById('previews').appendChild(container);
+        }
+
+        function copyToClipboard(button) {
+            const input = button.previousElementSibling;
+            input.select();
+            document.execCommand('copy');
+        }
+    </script>
+</body>
+</html>
