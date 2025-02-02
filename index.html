@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Temporary Image Host with Enhancer</title>
     <style>
-       body {
+        body {
             font-family: Arial, sans-serif;
             text-align: center;
             background-color: #f9f9f9;
@@ -103,6 +103,7 @@
     <h2>📤 Temporary Image Host with Enhancer</h2>
     <div id="dropZone">
         Drag & Drop images here or<br>
+        <button onclick="document.getElementById('fileInput').click()">Choose Files</button>
         <input type="file" id="fileInput" accept="image/*" multiple>
     </div>
     <div id="previews"></div>
@@ -118,14 +119,14 @@
 
         dropZone.ondragover = e => {
             e.preventDefault();
-            dropZone.style.backgroundColor = '#f0f0f0';
+            dropZone.classList.add('dragover');
         };
 
-        dropZone.ondragleave = () => dropZone.style.backgroundColor = '';
+        dropZone.ondragleave = () => dropZone.classList.remove('dragover');
 
         dropZone.ondrop = e => {
             e.preventDefault();
-            dropZone.style.backgroundColor = '';
+            dropZone.classList.remove('dragover');
             uploadFiles(e.dataTransfer.files);
         };
 
@@ -167,14 +168,12 @@
                     <div class="loader">Processing enhancement...</div>
                 </div>
                 <div class="file-link">
-                    <small>Image URL:</small><br>
                     <input type="text" value="${imageUrl}" readonly>
                     <button onclick="copyToClipboard(this)">📋 Copy</button>
                 </div>
             `;
             document.getElementById('previews').appendChild(container);
 
-            
             enhanceImage(imageUrl, file);
         }
 
@@ -205,6 +204,8 @@
             const input = button.previousElementSibling;
             input.select();
             document.execCommand('copy');
+            button.textContent = '✅ Copied!';
+            setTimeout(() => button.textContent = '📋 Copy', 2000);
         }
     </script>
 </body>
