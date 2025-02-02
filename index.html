@@ -97,6 +97,18 @@
         .enhanced-container {
             margin-top: 15px;
         }
+         @media (max-width: 600px) {
+            .file-name {
+                font-size: 12px; 
+                margin: 5px 0; 
+                text-align: center; 
+                padding: 0 10px;
+                white-space: normal;
+            }
+            #dropZone {
+                width: 70%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -105,6 +117,7 @@
         Drag & Drop images here or<br>
         <button onclick="document.getElementById('fileInput').click()">Choose Files</button>
         <input type="file" id="fileInput" accept="image/*" multiple>
+        <div class="file-name" id="fileName"></div>
     </div>
     <div id="previews"></div>
 
@@ -113,6 +126,7 @@
 
         document.getElementById('fileInput').addEventListener('change', function (e) {
             uploadFiles(e.target.files);
+            displayFileName(e.target.files);
         });
 
         const dropZone = document.getElementById('dropZone');
@@ -128,6 +142,7 @@
             e.preventDefault();
             dropZone.classList.remove('dragover');
             uploadFiles(e.dataTransfer.files);
+            displayFileName(e.dataTransfer.files);
         };
 
         function uploadFiles(files) {
@@ -155,7 +170,10 @@
                 .catch(error => console.error("Error uploading file:", error));
             }
         }
-
+ function displayFileName(files) {
+            const fileName = files[0].name; 
+            document.getElementById('fileName').textContent = `Selected File: ${fileName}`;
+        }
         function displayImage(imageUrl, file) {
             const container = document.createElement('div');
             container.classList.add('preview-container');
