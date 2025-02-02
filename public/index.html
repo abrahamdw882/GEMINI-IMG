@@ -38,8 +38,9 @@
     <div id="previews"></div>
 
     <script>
-        const proxyUrl = "https://broken-star-6439.abrahamdw882.workers.dev/?u=";
-        
+ const proxyUrl = "https://broken-star-6439.abrahamdw882.workers.dev/?u=";
+
+        // Event Handlers
         document.getElementById('fileInput').addEventListener('change', handleFiles);
         
         const dropZone = document.getElementById('dropZone');
@@ -64,59 +65,67 @@
         }
 
         async function processFile(file) {
-            const formData = new FormData();
-            formData.append('image', file);
-
             try {
+                const formData = new FormData();
+                formData.append('image', file);
+
                 const response = await fetch('/api/upload', {
                     method: 'POST',
                     body: formData
                 });
+
+                const data = await response.json();
                 
-                if (!response.ok) throw new Error('Upload failed');
-                const { url } = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Upload failed');
+                }
 
-                const container = document.createElement('div');
-                container.innerHTML = `
-                    <div class="preview-container">
-                        <h3>Original Image</h3>
-                        <img class="preview" src="${url}">
-                        <h3>Enhanced Image</h3>
-                        <div class="enhanced-container">
-                            <img class="preview loading" data-src="${url}">
-                            <div class="loader">Processing...</div>
-                        </div>
-                        <button onclick="deleteImage('${url}')">🗑 Delete</button>
-                    </div>
-                `;
-
-                document.getElementById('previews').appendChild(container);
-                enhanceImage(container.querySelector('.loading'), url);
+                createImagePreview(data.url);
+                enhanceImage(data.url);
+                
             } catch (error) {
-                console.error('Upload failed:', error);
-                alert('File upload failed');
+                console.error('Upload error:', error);
+                alert(`Error: ${error.message}`);
             }
         }
 
-        async function enhanceImage(imgElement, imageUrl) {
+        function createImagePreview(url) {
+            const container = document.createElement('div');
+            container.innerHTML = `
+                <div class="preview-container">
+                    <h3>Original Image</h3>
+                    <img class="preview" src="${url}">
+                    <h3>Enhanced Image</h3>
+                    <div class="enhanced-container">
+                        <img class="preview loading" id="enhanced-${Date.now()}">
+                        <div class="loader">Processing...</div>
+                    </div>
+                    <button onclick="deleteImage('${url}')">🗑 Delete</button>
+                </div>
+            `;
+            document.getElementById('previews').appendChild(container);
+        }
+
+        async function enhanceImage(imageUrl) {
             try {
+                const enhancedImg = document.querySelector(`#enhanced-${Date.now()}`);
                 const enhanceUrl = `https://bk9.fun/tools/enhance?url=${encodeURIComponent(imageUrl)}`;
                 const finalUrl = proxyUrl + encodeURIComponent(enhanceUrl);
                 
-                imgElement.src = finalUrl;
+                enhancedImg.src = finalUrl;
                 
-                imgElement.onload = () => {
-                    imgElement.classList.remove('loading');
-                    imgElement.classList.add('enhanced');
-                    imgElement.parentElement.querySelector('.loader').remove();
+                enhancedImg.onload = () => {
+                    enhancedImg.classList.remove('loading');
+                    enhancedImg.classList.add('enhanced');
+                    enhancedImg.parentElement.querySelector('.loader').remove();
                 };
                 
-                imgElement.onerror = () => {
-                    imgElement.parentElement.innerHTML = 'Error enhancing image';
+                enhancedImg.onerror = () => {
+                    enhancedImg.parentElement.innerHTML = 'Error enhancing image';
                 };
             } catch (error) {
                 console.error('Enhancement error:', error);
-                imgElement.parentElement.innerHTML = 'Enhancement failed';
+                document.querySelector(`.enhanced-container`).innerHTML = 'Enhancement failed';
             }
         }
 
@@ -127,7 +136,7 @@
                 });
                 event.target.closest('.preview-container').remove();
             } catch (error) {
-                console.error('Delete failed:', error);
+                console.error('Delete error:', error);
                 alert('Failed to delete image');
             }
         }
