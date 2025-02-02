@@ -1,0 +1,4 @@
+# Allow access to the uploads folder
+<FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+    Require all granted
+</FilesMatch>
