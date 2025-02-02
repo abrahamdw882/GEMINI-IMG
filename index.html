@@ -6,18 +6,19 @@
   <title>AI Image Reader</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Arial, sans-serif;
       text-align: center;
       background-color: #f9f9f9;
       margin: 0;
       padding: 20px;
     }
     h2 {
-      color: #333;
-      margin-bottom: 20px;
+      color: #2c3e50;
+      margin-bottom: 25px;
+      font-weight: 600;
     }
     #dropZone {
-      border: 2px dashed #ccc;
+      border: 2px dashed #bdc3c7;
       padding: 40px;
       text-align: center;
       margin: 20px auto;
@@ -25,104 +26,197 @@
       max-width: 500px;
       cursor: pointer;
       background-color: #fff;
-      border-radius: 10px;
-      transition: background-color 0.3s, border-color 0.3s;
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     #dropZone:hover {
-      border-color: #007bff;
-      background-color: #f0f8ff;
+      border-color: #3498db;
+      background-color: #f5faff;
     }
     #dropZone.dragover {
-      border-color: #007bff;
-      background-color: #e0f0ff;
+      border-color: #2980b9;
+      background-color: #ecf6fd;
     }
     #fileInput {
       display: none;
     }
     #uploadingIndicator {
-      margin: 20px auto;
-      font-size: 18px;
-      color: #555;
+      margin: 25px auto;
+      font-size: 17px;
+      color: #7f8c8d;
       display: none;
     }
     .preview-container {
-      margin-top: 20px;
-      padding: 20px;
-      border: 2px solid #ddd;
-      border-radius: 10px;
+      margin-top: 25px;
+      padding: 25px;
+      border: 2px solid #ecf0f1;
+      border-radius: 12px;
       background-color: #fff;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      max-width: 600px;
-      margin: 20px auto;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+      max-width: 680px;
+      margin: 25px auto;
     }
     .preview {
       max-width: 100%;
       height: auto;
-      border-radius: 5px;
-      margin: 10px 0;
+      border-radius: 8px;
+      margin: 15px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .file-link {
       word-break: break-all;
-      margin: 15px 0;
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .file-link input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #bdc3c7;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #2c3e50;
+    }
+    .file-link button {
+      padding: 10px 18px;
+      background-color: #3498db;
+      color: #fff;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .file-link button:hover {
+      background-color: #2980b9;
+    }
+    .ai-query {
+      margin: 20px 0;
+      display: flex;
+      gap: 12px;
+    }
+    .ai-query input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #bdc3c7;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: border-color 0.3s;
+    }
+    .ai-query input:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+    .ai-query button {
+      padding: 12px 20px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+    .ai-query button:hover {
+      background-color: #219a52;
+    }
+    .ai-response {
+      margin: 20px 0;
+      padding: 20px;
+      background-color: #f8faff;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #2c3e50;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      position: relative;
+      text-align: left;
+      animation: fadeIn 0.4s ease-out;
+    }
+    .ai-response.success {
+      border-color: #27ae60;
+      background-color: #e8f6ee;
+    }
+    .ai-response.error {
+      border-color: #e74c3c;
+      background-color: #fdedec;
+    }
+    .ai-response::before {
+      content: "🤖";
+      position: absolute;
+      left: -40px;
+      top: 16px;
+      font-size: 26px;
+      opacity: 0.9;
+    }
+    .response-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+    .response-header h4 {
+      margin: 0;
+      color: #2c3e50;
+      font-size: 17px;
+      font-weight: 600;
+    }
+    .response-content {
+      padding-left: 8px;
+    }
+    .response-content strong {
+      color: #2c3e50;
+      font-weight: 600;
+    }
+    .loading {
+      color: #7f8c8d;
+      font-style: italic;
+      padding: 18px;
+      text-align: center;
+      border-radius: 8px;
+      background-color: #f9f9f9;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
     }
-    .file-link input {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 14px;
+    .loading-dots {
+      display: inline-block;
     }
-    .file-link button {
-      padding: 8px 12px;
-      background-color: #007bff;
-      color: #fff;
-      font-size: 14px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
+    .loading-dots::after {
+      content: '...';
+      animation: dotAnimation 1.5s infinite;
     }
-    .file-link button:hover {
-      background-color: #0056b3;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .ai-query {
-      margin: 15px 0;
-      display: flex;
-      gap: 10px;
+    @keyframes dotAnimation {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
     }
-    .ai-query input {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    .ai-query button {
-      padding: 8px 12px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .ai-response {
-      margin: 10px 0;
-      padding: 10px;
-      background-color: #f8f9fa;
-      border-radius: 5px;
-      text-align: left;
-    }
-    .loading {
-      color: #666;
-      font-style: italic;
+    @media (max-width: 768px) {
+      #dropZone {
+        width: 80%;
+        padding: 30px;
+      }
+      .preview-container {
+        padding: 20px;
+        margin: 20px 10px;
+      }
+      .ai-response::before {
+        left: -30px;
+        font-size: 22px;
+      }
     }
   </style>
 </head>
 <body>
-  <h2>🖼️ AI Image Reader</h2>
+  <h2>🖼️ AI Image Analyzer</h2>
   <div id="dropZone">
     Drag & Drop images here or<br />
     <button onclick="document.getElementById('fileInput').click()">Choose Files</button>
@@ -138,7 +232,6 @@
     const proxyUrl = "https://broken-star-6439.abrahamdw882.workers.dev/?u=";
     let activeUploads = 0;
 
-    // Existing upload functions remain the same
     document.getElementById('fileInput').addEventListener('change', function (e) {
       const files = e.target.files;
       displayFileName(files);
@@ -221,8 +314,8 @@
         <div class="ai-query">
           <input type="text" id="question-${imageUrl}" 
                  placeholder="Ask a question about the image..." 
-                 value="Who is this?">
-          <button onclick="askAI('${imageUrl}')">Ask AI</button>
+                 value="Describe this image in detail">
+          <button onclick="askAI('${imageUrl}')">Analyze</button>
         </div>
         <div class="ai-response" id="response-${imageUrl}"></div>
         <div class="file-link">
@@ -240,20 +333,56 @@
       const apiUrl = `https://bk9.fun/ai/geminiimg?url=${encodeURIComponent(imageUrl)}&q=${question}`;
       const finalUrl = proxyUrl + encodeURIComponent(apiUrl);
 
-      responseDiv.innerHTML = '<div class="loading">Analyzing image...</div>';
+      responseDiv.className = 'ai-response loading';
+      responseDiv.innerHTML = `
+        <div class="loading">
+          <span>Analyzing image</span>
+          <div class="loading-dots"></div>
+        </div>
+      `;
       
       try {
         const response = await fetch(finalUrl);
         const data = await response.json();
         
+        responseDiv.className = 'ai-response' + (data.status ? ' success' : ' error');
+        
         if (data.status) {
-          responseDiv.innerHTML = data.BK9;
+          const formattedResponse = data.BK9
+            .split('\n').filter(Boolean)
+            .map(line => {
+              if (line.match(/^\d+\./) || line.startsWith('•')) {
+                return `<strong>${line}</strong>`;
+              }
+              return line;
+            }).join('<br><br>');
+
+          responseDiv.innerHTML = `
+            <div class="response-header">
+              <span class="ai-icon">🧠</span>
+              <h4>AI Analysis Result</h4>
+            </div>
+            <div class="response-content">
+              ${formattedResponse}
+            </div>
+          `;
         } else {
-          responseDiv.innerHTML = 'Could not analyze image. Please try again.';
+          responseDiv.innerHTML = `
+            <div class="error-message">
+              <strong>⚠️ Analysis Failed:</strong> 
+              The AI could not process your request. Please try again with a different image or question.
+            </div>
+          `;
         }
       } catch (error) {
         console.error('AI Error:', error);
-        responseDiv.innerHTML = 'Error processing request.';
+        responseDiv.className = 'ai-response error';
+        responseDiv.innerHTML = `
+          <div class="error-message">
+            <strong>🚨 Connection Error:</strong> 
+            Unable to reach the AI service. Please check your internet connection and try again.
+          </div>
+        `;
       }
     }
 
