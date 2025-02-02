@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temporary Image Host</title>
+    <title>Temporary Image Host with Enhancer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,6 +19,9 @@
         }
         .preview-container {
             margin-top: 15px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
         .preview {
             max-width: 300px;
@@ -28,10 +31,21 @@
             word-break: break-all;
             margin: 10px 0;
         }
+        .enhanced {
+            border: 2px solid green;
+        }
+        .loading {
+            filter: grayscale(1);
+            opacity: 0.5;
+        }
+        .loader {
+            color: #888;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
-    <h2>📤 Temporary Image Host</h2>
+    <h2>📤 Temporary Image Host with Enhancer</h2>
     <div id="dropZone">
         Drag & Drop images here or<br>
         <input type="file" id="fileInput" accept="image/*" multiple>
@@ -39,6 +53,8 @@
     <div id="previews"></div>
 
     <script>
+        const proxyUrl = "https://broken-star-6439.abrahamdw882.workers.dev/?u=";
+
         document.getElementById('fileInput').addEventListener('change', function (e) {
             uploadFiles(e.target.files);
         });
@@ -75,7 +91,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        displayImage(data.url);
+                        displayImage(data.url, file);
                     } else {
                         alert("Upload failed: " + data.error);
                     }
@@ -84,11 +100,17 @@
             }
         }
 
-        function displayImage(imageUrl) {
+        function displayImage(imageUrl, file) {
             const container = document.createElement('div');
             container.classList.add('preview-container');
             container.innerHTML = `
+                <h3>Original Image</h3>
                 <img class="preview" src="${imageUrl}">
+                <h3>Enhanced Image</h3>
+                <div class="enhanced-container">
+                    <img class="preview loading" id="enhanced-${imageUrl}" data-processing="true">
+                    <div class="loader">Processing enhancement...</div>
+                </div>
                 <div class="file-link">
                     <small>Image URL:</small><br>
                     <input type="text" value="${imageUrl}" readonly>
@@ -96,6 +118,32 @@
                 </div>
             `;
             document.getElementById('previews').appendChild(container);
+
+            
+            enhanceImage(imageUrl, file);
+        }
+
+        async function enhanceImage(imageUrl, file) {
+            try {
+                const enhanceUrl = `https://bk9.fun/tools/enhance?url=${encodeURIComponent(imageUrl)}`;
+                const finalUrl = proxyUrl + encodeURIComponent(enhanceUrl);
+
+                const enhancedImg = document.getElementById(`enhanced-${imageUrl}`);
+                enhancedImg.src = finalUrl;
+
+                enhancedImg.onload = () => {
+                    enhancedImg.classList.remove('loading');
+                    enhancedImg.classList.add('enhanced');
+                    enhancedImg.parentElement.querySelector('.loader').remove();
+                };
+
+                enhancedImg.onerror = () => {
+                    enhancedImg.parentElement.innerHTML = 'Error enhancing image';
+                };
+            } catch (error) {
+                console.error('Enhancement error:', error);
+                document.querySelector(`#enhanced-${imageUrl}`).parentElement.innerHTML = 'Enhancement failed';
+            }
         }
 
         function copyToClipboard(button) {
