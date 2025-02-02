@@ -1,6 +1,9 @@
 services:
   - type: web
     name: php-image-host
-    env: static
-    buildCommand: ""
-    startCommand: "php -S 0.0.0.0:10000 -t ."
+    env: docker
+    plan: free
+    repo: https://github.com/abrahamdw882/test-enhancer
+    branch: main
+    dockerfilePath: Dockerfile
+    autoDeploy: true
