@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
   <title>AI Image Reader</title>
   <style>
     body {
@@ -214,7 +218,80 @@
       }
     }
 
+
+    .markdown-body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #24292e;
+    }
+    
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+      margin: 1em 0 0.5em;
+      font-weight: 600;
+      border-bottom: 1px solid #eaecef;
+    }
+    
+    .markdown-body p {
+      margin: 0 0 1em;
+    }
+    
+    .markdown-body ul, .markdown-body ol {
+      padding-left: 2em;
+      margin: 0 0 1em;
+    }
+    
+    .markdown-body li {
+      margin: 0.25em 0;
+    }
+    
+    .markdown-body blockquote {
+      margin: 0 0 1em;
+      padding: 0 1em;
+      color: #6a737d;
+      border-left: 0.25em solid #dfe2e5;
+    }
+    
+    .markdown-body code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+      padding: 0.2em 0.4em;
+      margin: 0;
+      font-size: 85%;
+      background-color: rgba(27,31,35,0.05);
+      border-radius: 3px;
+    }
+    
+    .markdown-body pre {
+      padding: 1em;
+      overflow: auto;
+      background-color: #f6f8fa;
+      border-radius: 3px;
+      margin: 0 0 1em;
+    }
+    
+    .markdown-body a {
+      color: #0366d6;
+      text-decoration: none;
+    }
+    
+    .markdown-body a:hover {
+      text-decoration: underline;
+    }
+
     @media (max-width: 360px) {
+      .markdown-body {
+        font-size: 14px;
+      }
+      .markdown-body pre {
+        padding: 0.8em;
+      }
+    }
+
+    @media (max-width: 360px) {
+.markdown-body pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
   #dropZone {
     width: 90%;
     padding: 20px;
@@ -418,8 +495,16 @@
       `;
       document.getElementById('previews').appendChild(container);
     }
+    
+     marked.setOptions({
+      breaks: true,
+       sanitize: false,
+      highlight: function(code) {
+        return hljs.highlightAuto(code).value;
+      }
+    });
 
-    async function askAI(imageUrl) {
+   async function askAI(imageUrl) {
       const questionInput = document.getElementById(`question-${imageUrl}`);
       const responseDiv = document.getElementById(`response-${imageUrl}`);
       const question = encodeURIComponent(questionInput.value);
@@ -440,26 +525,21 @@
         
         responseDiv.className = 'ai-response' + (data.status ? ' success' : ' error');
         
-        if (data.status) {
-          const formattedResponse = data.BK9
-            .split('\n').filter(Boolean)
-            .map(line => {
-              if (line.match(/^\d+\./) || line.startsWith('•')) {
-                return `<strong>${line}</strong>`;
-              }
-              return line;
-            }).join('<br><br>');
+       if (data.status) {
+    const rawMarkdown = data.BK9;
+    const parsedHTML = marked.parse(rawMarkdown);
+    const sanitizedHTML = DOMPurify.sanitize(parsedHTML);
 
-          responseDiv.innerHTML = `
-            <div class="response-header">
-              <span class="ai-icon">🧠</span>
-              <h4>AI Analysis Result</h4>
-            </div>
-            <div class="response-content">
-              ${formattedResponse}
-            </div>
-          `;
-        } else {
+    responseDiv.innerHTML = `
+        <div class="response-header">
+            <span class="ai-icon">🧠</span>
+            <h4>AI Analysis Result</h4>
+        </div>
+        <div class="markdown-body">
+            ${sanitizedHTML}
+        </div>
+    `;
+       } else {
           responseDiv.innerHTML = `
             <div class="error-message">
               <strong>⚠️ Analysis Failed:</strong> 
