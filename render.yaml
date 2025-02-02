@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: php-image-host
+    env: docker
+    plan: free
+    repo: https://github.com/abrahamdw882/test-enhancer
+    branch: main
+    dockerfilePath: Dockerfile
+    autoDeploy: true
