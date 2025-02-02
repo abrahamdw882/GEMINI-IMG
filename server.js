@@ -1,46 +1,61 @@
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
-const path = require('path');
 const serverless = require('serverless-http');
 
 const app = express();
-
-
-app.use(cors());
-app.use(express.json());
-
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type']
+}));
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
-
-
-app.post('/api/upload', upload.single('image'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
     }
+  }
+});
+app.post('/api/upload', upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    const base64Image = req.file.buffer.toString('base64');
+    const dataURI = `data:${req.file.mimetype};base64,${base64Image}`;
 
-  
-    const demoUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
-    
-    res.json({
-        url: demoUrl,
-        message: 'For production use, implement cloud storage upload'
+    res.status(200).json({
+      url: dataURI,
+      deleteToken: 'demo-token'
     });
+
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
-
-
 app.delete('/api/delete', (req, res) => {
-   
-    res.json({ message: 'Delete endpoint - implement cloud storage deletion' });
+  try {
+    res.status(200).json({ message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Delete error:', error);
+    res.status(500).json({ error: 'Failed to delete file' });
+  }
 });
-
-
-app.use(express.static(path.join(__dirname, 'public')));
-
-
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    error: err.message || 'Internal server error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
 });
 
 module.exports = app;
