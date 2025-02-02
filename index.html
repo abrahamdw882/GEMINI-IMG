@@ -5,34 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Temporary Image Host with Enhancer</title>
     <style>
-        body {
+       body {
             font-family: Arial, sans-serif;
             text-align: center;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
         }
         #dropZone {
             border: 2px dashed #ccc;
-            padding: 20px;
+            padding: 40px;
             text-align: center;
             margin: 20px auto;
-            width: 50%;
+            width: 60%;
+            max-width: 500px;
             cursor: pointer;
+            background-color: #fff;
+            border-radius: 10px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        #dropZone:hover {
+            border-color: #007bff;
+            background-color: #f0f8ff;
+        }
+        #dropZone.dragover {
+            border-color: #007bff;
+            background-color: #e0f0ff;
+        }
+        #fileInput {
+            display: none;
         }
         .preview-container {
-            margin-top: 15px;
-            padding: 15px;
+            margin-top: 20px;
+            padding: 20px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 20px auto;
         }
         .preview {
-            max-width: 300px;
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
             margin: 10px 0;
         }
         .file-link {
             word-break: break-all;
-            margin: 10px 0;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .file-link input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .file-link button {
+            padding: 8px 12px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .file-link button:hover {
+            background-color: #0056b3;
         }
         .enhanced {
-            border: 2px solid green;
+            border: 2px solid #28a745;
         }
         .loading {
             filter: grayscale(1);
@@ -41,6 +92,10 @@
         .loader {
             color: #888;
             font-style: italic;
+            margin: 10px 0;
+        }
+        .enhanced-container {
+            margin-top: 15px;
         }
     </style>
 </head>
