@@ -108,14 +108,16 @@ async function askAI(imageUrl) {
     const responseDiv = document.getElementById(`response-${imageUrl}`);
     const question = questionInput.value;
 
+    const apiUrl = "https://fgsi-ai.hf.space/";
+    
     const requestBody = {
         messages: [
             { role: "system", content: "You are a helpful AI that analyzes images." },
             { 
                 role: "user", 
                 content: [
-                    { type: "image_url", image_url: { url: imageUrl } },
-                    { type: "text", text: question }
+                    { type: "text", text: question },
+                    { type: "image_url", image_url: { url: imageUrl } }
                 ]
             }
         ],
@@ -131,20 +133,21 @@ async function askAI(imageUrl) {
             <div class="loading-dots"></div>
         </div>
     `;
-
+    
     try {
-        const response = await fetch("https://fgsi-ai.hf.space/", {
+        const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody),
+            body: JSON.stringify(requestBody)
         });
 
         const data = await response.json();
+        console.log("AI Response:", data);
 
-        responseDiv.className = 'ai-response' + (data.choices ? ' success' : ' error');
+        responseDiv.className = 'ai-response' + (data.status ? ' success' : ' error');
 
-        if (data.choices) {
-            const rawMarkdown = data.choices[0].message.content;
+        if (data.status) {
+            const rawMarkdown = data.BK9;
             const parsedHTML = marked.parse(rawMarkdown);
             const sanitizedHTML = DOMPurify.sanitize(parsedHTML);
 
