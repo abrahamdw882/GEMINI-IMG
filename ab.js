@@ -175,16 +175,6 @@ async function askAI(imageUrl) {
             <strong>⚠️ Analysis Failed:</strong> ${error.message}
         </div>`;
     }
-} catch (error) {
-    console.error('AI Error:', error);
-    responseDiv.className = 'ai-response error';
-    responseDiv.innerHTML = `
-      <div class="error-message">
-        <strong>🚨 Connection Error:</strong> 
-        Unable to reach the AI service. Please check your internet connection and try again.
-      </div>
-    `;
-  }
 }
 
 function copyToClipboard(button) {
