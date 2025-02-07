@@ -1,6 +1,6 @@
 const proxyUrl = "https://broken-star-6439.abrahamdw882.workers.dev/?u=";
 let activeUploads = 0;
-let questionHistory = {}; // Store questions for each image by imageUrl
+let questionHistory = {};
 
 document.getElementById('fileInput').addEventListener('change', function (e) {
   const files = e.target.files;
@@ -118,13 +118,11 @@ async function askAI(questionId, imageUrl) {
         return;
     }
 
-    // Save the question to the history
     if (!questionHistory[imageUrl]) {
         questionHistory[imageUrl] = [];
     }
     questionHistory[imageUrl].push(question);
 
-    // Prepare the history of the conversation for the request
     const conversationHistory = questionHistory[imageUrl].map(q => ({
         role: "user", content: q
     }));
@@ -133,7 +131,7 @@ async function askAI(questionId, imageUrl) {
     const requestData = {
         messages: [
             { role: "system", content: "You are a helpful assistant." },
-            ...conversationHistory, // Include all previous questions for this image
+            ...conversationHistory, 
             { 
                 role: "user", 
                 content: [
