@@ -106,7 +106,7 @@ async function askAI(imageUrl) {
   const questionInput = document.getElementById(`question-${imageUrl}`);
   const responseDiv = document.getElementById(`response-${imageUrl}`);
   const question = questionInput.value;
-
+  console.log("API Response:", data);
   const apiUrl = "https://fgsi-ai.hf.space";
   const requestBody = {
     messages: [
