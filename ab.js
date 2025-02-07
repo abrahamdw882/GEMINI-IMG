@@ -1,5 +1,6 @@
 const proxyUrl = "https://broken-star-6439.abrahamdw882.workers.dev/?u=";
 let activeUploads = 0;
+let questionHistory = {}; 
 
 document.getElementById('fileInput').addEventListener('change', function (e) {
   const files = e.target.files;
@@ -77,14 +78,17 @@ function uploadFiles(files) {
 function displayImage(imageUrl) {
   const container = document.createElement('div');
   container.classList.add('preview-container');
+
+  const uniqueId = `question-${Math.random().toString(36).substring(2, 15)}`;
+
   container.innerHTML = `
     <h3>Uploaded Image</h3>
     <img class="preview" src="${imageUrl}">
     <div class="ai-query">
-      <input type="text" id="question-${imageUrl}" 
+      <input type="text" id="${uniqueId}" 
              placeholder="Ask a question about the image..." 
              value="Describe this image in detail">
-      <button onclick="askAI('${imageUrl}')">Analyze</button>
+      <button onclick="askAI('${uniqueId}', '${imageUrl}')">Analyze</button>
     </div>
     <div class="ai-response" id="response-${imageUrl}"></div>
     <div class="file-link">
@@ -102,8 +106,8 @@ marked.setOptions({
   }
 });
 
-async function askAI(imageUrl) {
-    const questionInput = document.getElementById(`question-${imageUrl}`);
+async function askAI(questionId, imageUrl) {
+    const questionInput = document.getElementById(questionId);
     const responseDiv = document.getElementById(`response-${imageUrl}`);
     const question = questionInput.value.trim();
 
@@ -114,11 +118,20 @@ async function askAI(imageUrl) {
         return;
     }
 
-    const questionId = questionInput.id;  
+    if (!questionHistory[imageUrl]) {
+        questionHistory[imageUrl] = [];
+    }
+    questionHistory[imageUrl].push(question);
+
+    const conversationHistory = questionHistory[imageUrl].map(q => ({
+        role: "user", content: q
+    }));
+
     const apiUrl = "https://fgsi-ai.hf.space/";
     const requestData = {
         messages: [
             { role: "system", content: "You are a helpful assistant." },
+            ...conversationHistory, 
             { 
                 role: "user", 
                 content: [
@@ -158,7 +171,7 @@ async function askAI(imageUrl) {
             const parsedHTML = marked.parse(rawMarkdown);
             const sanitizedHTML = DOMPurify.sanitize(parsedHTML);
 
-            const aiResponseId = data.data.id;  
+            const aiResponseId = data.data.id;
 
             console.log(`Question ID: ${questionId}, AI Response ID: ${aiResponseId}`);
 
