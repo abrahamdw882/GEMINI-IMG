@@ -114,6 +114,7 @@ async function askAI(imageUrl) {
         return;
     }
 
+    const questionId = questionInput.id;  
     const apiUrl = "https://fgsi-ai.hf.space/";
     const requestData = {
         messages: [
@@ -157,6 +158,10 @@ async function askAI(imageUrl) {
             const parsedHTML = marked.parse(rawMarkdown);
             const sanitizedHTML = DOMPurify.sanitize(parsedHTML);
 
+            const aiResponseId = data.data.id;  
+
+            console.log(`Question ID: ${questionId}, AI Response ID: ${aiResponseId}`);
+
             responseDiv.className = 'ai-response success';
             responseDiv.innerHTML = `
                 <div class="response-header">
@@ -164,6 +169,7 @@ async function askAI(imageUrl) {
                     <h4>AI Analysis Result</h4>
                 </div>
                 <div class="markdown-body">${sanitizedHTML}</div>
+                <div><strong>AI Response ID:</strong> ${aiResponseId}</div>
             `;
         } else {
             throw new Error("Empty response from AI.");
