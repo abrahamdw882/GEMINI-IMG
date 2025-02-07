@@ -1,6 +1,6 @@
 const proxyUrl = "https://broken-star-6439.abrahamdw882.workers.dev/?u=";
 let activeUploads = 0;
-let questionHistory = {}; 
+let questionHistory = {}; // Store questions for each image by imageUrl
 
 document.getElementById('fileInput').addEventListener('change', function (e) {
   const files = e.target.files;
@@ -118,11 +118,13 @@ async function askAI(questionId, imageUrl) {
         return;
     }
 
+    // Save the question to the history
     if (!questionHistory[imageUrl]) {
         questionHistory[imageUrl] = [];
     }
     questionHistory[imageUrl].push(question);
 
+    // Prepare the history of the conversation for the request
     const conversationHistory = questionHistory[imageUrl].map(q => ({
         role: "user", content: q
     }));
@@ -131,7 +133,7 @@ async function askAI(questionId, imageUrl) {
     const requestData = {
         messages: [
             { role: "system", content: "You are a helpful assistant." },
-            ...conversationHistory, 
+            ...conversationHistory, // Include all previous questions for this image
             { 
                 role: "user", 
                 content: [
@@ -154,7 +156,7 @@ async function askAI(questionId, imageUrl) {
     `;
 
     try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(requestData)
@@ -171,10 +173,6 @@ async function askAI(questionId, imageUrl) {
             const parsedHTML = marked.parse(rawMarkdown);
             const sanitizedHTML = DOMPurify.sanitize(parsedHTML);
 
-            const aiResponseId = data.data.id;
-
-            console.log(`Question ID: ${questionId}, AI Response ID: ${aiResponseId}`);
-
             responseDiv.className = 'ai-response success';
             responseDiv.innerHTML = `
                 <div class="response-header">
@@ -182,7 +180,6 @@ async function askAI(questionId, imageUrl) {
                     <h4>AI Analysis Result</h4>
                 </div>
                 <div class="markdown-body">${sanitizedHTML}</div>
-                <div><strong>AI Response ID:</strong> ${aiResponseId}</div>
             `;
         } else {
             throw new Error("Empty response from AI.");
