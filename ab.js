@@ -103,66 +103,79 @@ marked.setOptions({
 });
 
 async function askAI(imageUrl) {
-  const questionInput = document.getElementById(`question-${imageUrl}`);
-  const responseDiv = document.getElementById(`response-${imageUrl}`);
-  const question = questionInput.value;
-  const apiUrl = "https://fgsi-ai.hf.space";
-  const requestBody = {
-    messages: [
-      { role: "system", content: "You are a helpful assistant." },
-      { role: "user", content: [
-        { type: "image_url", image_url: { url: imageUrl } },
-        { type: "text", text: question }
-      ]}
-    ],
-    temperature: 1,
-    max_tokens: 1000,
-    top_p: 1
-  };
+    const questionInput = document.getElementById(`question-${imageUrl}`);
+    const responseDiv = document.getElementById(`response-${imageUrl}`);
+    const question = questionInput.value.trim();
 
-  responseDiv.className = 'ai-response loading';
-  responseDiv.innerHTML = `
-    <div class="loading">
-      <span>Analyzing image</span>
-      <div class="loading-dots"></div>
-    </div>
-  `;
-
-  try {
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestBody)
-    });
-
-       const data = await response.json(); 
-        console.log("API Response:", data);
-    
-    responseDiv.className = 'ai-response' + (data?.choices ? ' success' : ' error');
-
-    if (data?.choices) {
-      const rawMarkdown = data.choices[0].message.content;
-      const parsedHTML = marked.parse(rawMarkdown);
-      const sanitizedHTML = DOMPurify.sanitize(parsedHTML);
-
-      responseDiv.innerHTML = `
-        <div class="response-header">
-          <span class="ai-icon">🧠</span>
-          <h4>AI Analysis Result</h4>
-        </div>
-        <div class="markdown-body">
-          ${sanitizedHTML}
-        </div>
-      `;
-    } else {
-      responseDiv.innerHTML = `
-        <div class="error-message">
-          <strong>⚠️ Analysis Failed:</strong> 
-          The AI could not process your request. Please try again with a different image or question.
-        </div>
-      `;
+    if (!question) {
+        responseDiv.innerHTML = `<div class="error-message">
+            <strong>⚠️ Please enter a question before analyzing.</strong>
+        </div>`;
+        return;
     }
-  } catch (error) {
+
+    const apiUrl = "https://fgsi-ai.hf.space/";
+    const requestData = {
+        messages: [
+            { role: "system", content: "You are a helpful assistant." },
+            { 
+                role: "user", 
+                content: [
+                    { type: "image_url", image_url: { url: imageUrl } },
+                    { type: "text", text: question }
+                ] 
+            }
+        ],
+        temperature: 1,
+        max_tokens: 1000,
+        top_p: 1
+    };
+
+    responseDiv.className = 'ai-response loading';
+    responseDiv.innerHTML = `
+        <div class="loading">
+            <span>Analyzing image...</span>
+            <div class="loading-dots"></div>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.status && data.data.choices.length > 0) {
+            const rawMarkdown = data.data.choices[0].message.content;
+            const parsedHTML = marked.parse(rawMarkdown);
+            const sanitizedHTML = DOMPurify.sanitize(parsedHTML);
+
+            responseDiv.className = 'ai-response success';
+            responseDiv.innerHTML = `
+                <div class="response-header">
+                    <span class="ai-icon">🧠</span>
+                    <h4>AI Analysis Result</h4>
+                </div>
+                <div class="markdown-body">${sanitizedHTML}</div>
+            `;
+        } else {
+            throw new Error("Empty response from AI.");
+        }
+    } catch (error) {
+        console.error("AI Error:", error);
+        responseDiv.className = 'ai-response error';
+        responseDiv.innerHTML = `<div class="error-message">
+            <strong>⚠️ Analysis Failed:</strong> ${error.message}
+        </div>`;
+    }
+} catch (error) {
     console.error('AI Error:', error);
     responseDiv.className = 'ai-response error';
     responseDiv.innerHTML = `
