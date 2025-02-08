@@ -123,28 +123,6 @@ async function askAI(questionId, imageUrl) {
     }
     questionHistory[imageUrl].push(question);
 
-    const conversationHistory = questionHistory[imageUrl].map(q => ({
-        role: "user", content: q
-    }));
-
-    const apiUrl = "https://fgsi-ai.hf.space/";
-    const requestData = {
-        messages: [
-            { role: "system", content: "You are a helpful assistant." },
-            ...conversationHistory, 
-            { 
-                role: "user", 
-                content: [
-                    { type: "image_url", image_url: { url: imageUrl } },
-                    { type: "text", text: question }
-                ] 
-            }
-        ],
-        temperature: 1,
-        max_tokens: 1000,
-        top_p: 1
-    };
-
     responseDiv.className = 'ai-response loading';
     responseDiv.innerHTML = `
         <div class="loading">
@@ -154,38 +132,78 @@ async function askAI(questionId, imageUrl) {
     `;
 
     try {
-        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
+        let response = await fetch(`https://bk9.fun/ai/geminiimg?url=${encodeURIComponent(imageUrl)}`);
+
+        if (!response.ok) throw new Error(`BK9 API Error: ${response.status}`);
+
+        let data = await response.json();
+        console.log("BK9 API Response:", data);
+
+        if (data.status && data.BK9) {
+            responseDiv.className = 'ai-response success';
+            responseDiv.innerHTML = `
+                <div class="response-header">
+                    <span class="ai-icon">🧠</span>
+                    <h4>AI Analysis Result (BK9 API)</h4>
+                </div>
+                <div class="markdown-body">${DOMPurify.sanitize(marked.parse(data.BK9))}</div>
+            `;
+            return;
+        }
+
+        throw new Error("BK9 API returned an empty response.");
+    } catch (error) {
+        console.warn("BK9 API failed, switching to backup AI:", error);
+    }
+
+    try {
+        const conversationHistory = questionHistory[imageUrl].map(q => ({
+            role: "user", content: q
+        }));
+
+        const apiUrl = "https://fgsi-ai.hf.space/";
+        const requestData = {
+            messages: [
+                { role: "system", content: "You are a helpful assistant." },
+                ...conversationHistory, 
+                { 
+                    role: "user", 
+                    content: [
+                        { type: "image_url", image_url: { url: imageUrl } },
+                        { type: "text", text: question }
+                    ] 
+                }
+            ],
+            temperature: 1,
+            max_tokens: 1000,
+            top_p: 1
+        };
+
+        response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(requestData)
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP Error! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Old API Error: ${response.status}`);
 
-        const data = await response.json();
+        data = await response.json();
+        console.log("fgsi API Response:", data);
+
         if (data.status && data.data && data.data.prompt) {
-            const rawMarkdown = data.data.prompt;
-            const parsedHTML = marked.parse(rawMarkdown);
+            const parsedHTML = marked.parse(data.data.prompt);
             const sanitizedHTML = DOMPurify.sanitize(parsedHTML);
 
             responseDiv.className = 'ai-response success';
             responseDiv.innerHTML = `
                 <div class="response-header">
                     <span class="ai-icon">🧠</span>
-                    <h4>AI Analysis Result</h4>
+                    <h4>AI Analysis Result (Old API)</h4>
                 </div>
                 <div class="markdown-body">${sanitizedHTML}</div>
             `;
-            const logData = {
-                imageUrl: imageUrl,
-                question: question,
-                response: data.data.prompt
-            };
-            console.log("AI JSON Log:", JSON.stringify(logData, null, 2));
         } else {
-            throw new Error("Empty response from AI.");
+            throw new Error("Empty response from Old API.");
         }
     } catch (error) {
         console.error("AI Error:", error);
