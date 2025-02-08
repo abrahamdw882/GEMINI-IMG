@@ -130,9 +130,12 @@ async function askAI(questionId, imageUrl) {
             <div class="loading-dots"></div>
         </div>
     `;
-
     try {
-        let response = await fetch(`https://bk9.fun/ai/geminiimg?url=${encodeURIComponent(imageUrl)}`);
+        const encodedQuestion = encodeURIComponent(question);
+        const bk9Url = `https://bk9.fun/ai/geminiimg?url=${encodeURIComponent(imageUrl)}&q=${encodedQuestion}`;
+
+        console.log("BK9 API Request:", bk9Url);
+        let response = await fetch(bk9Url);
 
         if (!response.ok) throw new Error(`BK9 API Error: ${response.status}`);
 
@@ -155,7 +158,6 @@ async function askAI(questionId, imageUrl) {
     } catch (error) {
         console.warn("BK9 API failed, switching to backup AI:", error);
     }
-
     try {
         const conversationHistory = questionHistory[imageUrl].map(q => ({
             role: "user", content: q
