@@ -140,23 +140,23 @@ async function askAI(questionId, imageUrl) {
         if (!response.ok) throw new Error(`BK9 API Error: ${response.status}`);
 
         let data = await response.json();
-        console.log("BK9 API Response:", data);
+        console.log("API Response: up hehe");
 
         if (data.status && data.BK9) {
             responseDiv.className = 'ai-response success';
             responseDiv.innerHTML = `
                 <div class="response-header">
                     <span class="ai-icon">🧠</span>
-                    <h4>AI Analysis Result (BK9 API)</h4>
+                    <h4>AI Analysis Result</h4>
                 </div>
                 <div class="markdown-body">${DOMPurify.sanitize(marked.parse(data.BK9))}</div>
             `;
             return;
         }
 
-        throw new Error("BK9 API returned an empty response.");
+        throw new Error(" API returned an empty response.");
     } catch (error) {
-        console.warn("BK9 API failed, switching to backup AI:", error);
+        console.warn(" API failed, switching to backup AI:", error);
     }
     try {
         const conversationHistory = questionHistory[imageUrl].map(q => ({
@@ -190,7 +190,7 @@ async function askAI(questionId, imageUrl) {
         if (!response.ok) throw new Error(`Old API Error: ${response.status}`);
 
         data = await response.json();
-        console.log("fgsi API Response:", data);
+        console.log("API Response: good");
 
         if (data.status && data.data && data.data.prompt) {
             const parsedHTML = marked.parse(data.data.prompt);
@@ -200,7 +200,7 @@ async function askAI(questionId, imageUrl) {
             responseDiv.innerHTML = `
                 <div class="response-header">
                     <span class="ai-icon">🧠</span>
-                    <h4>AI Analysis Result (Old API)</h4>
+                    <h4>AI Analysis Result</h4>
                 </div>
                 <div class="markdown-body">${sanitizedHTML}</div>
             `;
