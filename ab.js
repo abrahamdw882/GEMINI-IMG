@@ -150,7 +150,8 @@ async function askAI(imageUrl) {
             throw new Error(`HTTP Error! Status: ${response.status}`);
         }
 
-        const data = await response.json();
+         const data = await response.json();
+         console.log("API Response:", data);
 
         if (data.status && data.data.choices.length > 0) {
             const rawMarkdown = data.data.choices[0].message.content;
