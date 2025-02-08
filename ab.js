@@ -134,7 +134,7 @@ async function askAI(questionId, imageUrl) {
         const encodedQuestion = encodeURIComponent(question);
         const bk9Url = `https://bk9.fun/ai/geminiimg?url=${encodeURIComponent(imageUrl)}&q=${encodedQuestion}`;
 
-        console.log("BK9 API Request:", bk9Url);
+        console.log("AB API Request: is working fine :)");
         let response = await fetch(bk9Url);
 
         if (!response.ok) throw new Error(`BK9 API Error: ${response.status}`);
