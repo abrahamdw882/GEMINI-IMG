@@ -165,8 +165,6 @@ async function askAI(questionId, imageUrl) {
         }
 
         const data = await response.json();
-        console.log("API Response:", data);
-
         if (data.status && data.data && data.data.prompt) {
             const rawMarkdown = data.data.prompt;
             const parsedHTML = marked.parse(rawMarkdown);
@@ -180,6 +178,12 @@ async function askAI(questionId, imageUrl) {
                 </div>
                 <div class="markdown-body">${sanitizedHTML}</div>
             `;
+            const logData = {
+                imageUrl: imageUrl,
+                question: question,
+                response: data.data.prompt
+            };
+            console.log("AI JSON Log:", JSON.stringify(logData, null, 2));
         } else {
             throw new Error("Empty response from AI.");
         }
