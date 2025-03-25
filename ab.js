@@ -132,7 +132,7 @@ async function askAI(questionId, imageUrl) {
     `;
     try {
         const encodedQuestion = encodeURIComponent(question);
-        const bk9Url = `https://bk9.fun/ai/geminiimg?url=${encodeURIComponent(imageUrl)}&q=${encodedQuestion}`;
+        const bk9Url = `https://bk9.fun/ai/geminiimg?url1=${encodeURIComponent(imageUrl)}&q=${encodedQuestion}`;
 
         console.log("AB API Request: is working fine :)");
         let response = await fetch(bk9Url);
