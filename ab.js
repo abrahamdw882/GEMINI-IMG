@@ -190,7 +190,7 @@ async function askAI(questionId, imageUrl) {
         if (!response.ok) throw new Error(`Old API Error: ${response.status}`);
 
         data = await response.json();
-        console.log("API Response: good");
+        console.log("API Response:",data);
 
         if (data.status && data.data && data.data.prompt) {
             const parsedHTML = marked.parse(data.data.prompt);
